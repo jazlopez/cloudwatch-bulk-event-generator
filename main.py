@@ -16,17 +16,18 @@ def get_stream_name() -> str:
     return str(int(time.time())) + "_test_stream"
 
 
-def create_cloudwatch_events(url: str = None, http_error_code: int = None, total: int = None) -> list:
+def create_cloudwatch_events(url: str = None,  method='POST', http_error_code: int = 200, total: int = 10) -> list:
 
     """
     :param url:
+    :param method:
     :param http_error_code:
     :param total:
     :return:
     """
     events = list()
     event = {'timestamp': None, 'message': None}
-    message = f"POST {url} HTTP/1.1 {http_error_code} - -"
+    message = f"{method} {url} HTTP/1.1 {http_error_code} - -"
     from_now = int(datetime.datetime.now().timestamp() * 1000)
     entry = {'log': message}
     for i in range(total):
@@ -43,9 +44,11 @@ def create_cloudwatch_events(url: str = None, http_error_code: int = None, total
 @click.option('--log-group-name', required=True, type=str)
 @click.option('--log-stream-name', required=False, type=str, default='')
 @click.option('--event-url', type=str, required=False, default='/de-eec-subscription/oauth2/token')
+@click.option('--event-method', type=str, required=False, default='POST')
 @click.option('--event-status-code', type=int, required=False, default=500)
 @click.option('--total-events', type=int, required=False, default=10)
-def main(profile=None, log_group_name=None, log_stream_name=None, event_url=None, event_status_code=None, total_events=None):
+def main(profile=None, log_group_name=None, log_stream_name=None, event_url=None, event_method=None,
+         event_status_code=None, total_events=None):
 
     profile = profile.strip()
     log_group_name = log_group_name.strip()
@@ -59,7 +62,7 @@ def main(profile=None, log_group_name=None, log_stream_name=None, event_url=None
 
         logs = CloudwatchLogs(profile_name=profile)
 
-        events = create_cloudwatch_events(url=event_url, http_error_code=event_status_code, total=total_events)
+        events = create_cloudwatch_events(url=event_url, method=event_method, http_error_code=event_status_code, total=total_events)
 
         is_empty_argument_log_stream_name = len(log_stream_name) == 0
 

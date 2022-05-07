@@ -52,11 +52,11 @@ By default it will post 10 new events with the following signature:
 
 Change the event URL that appear in the log message:
 
-- ```--event-url http://some_url --event-status-code 404```
+- ```--event-url http://some_url --event-method=DELETE --event-status-code 404```
 
 will change the log event message to the following:
   
-  ```{'timestamp': 1651450731941, 'message': '{"log": "POST http://some_url HTTP/1.1 404 - -"}'}```  
+  ```{'timestamp': 1651450731941, 'message': '{"log": "DELETE http://some_url HTTP/1.1 404 - -"}'}```  
 
 You can also specify how many events you want to submit when you run the program:  
 
