@@ -23,7 +23,7 @@ class CloudwatchLogs:
 
     def create_log_stream(self, log_group_name=None, log_stream_name=None):
 
-        self._client.createe_log_stream(logGroupName=log_group_name, logStreamName=log_stream_name)
+        self._client.create_log_stream(logGroupName=log_group_name, logStreamName=log_stream_name)
 
     def get_upload_token(self, log_group_name=None, log_stream_name=None):
 
