@@ -5,6 +5,12 @@ import datetime
 
 class Utils:
 
+    REJECTED_LOG_EVENTS = 'rejectedLogEventsInfo'
+
+    TOO_OLD_REJECTED_REASON = 'tooOld'
+
+    TOO_NEW_REJECTED_REASON = 'tooNew'
+
     @staticmethod
     def get_stream_name() -> str:
         """
