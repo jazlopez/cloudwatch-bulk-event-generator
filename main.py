@@ -22,12 +22,11 @@ def main(profile=None, log_group_name=None, log_stream_name=None, event_url=None
 
     try:
 
-        if not total_events > 0:
-            raise Exception('Argument total events cannot less than 0')
-
         logs = CloudwatchLogs(profile_name=profile)
 
-        events = Utils.create_cloudwatch_events(url=event_url, method=event_method, http_error_code=event_status_code, total=total_events)
+        events = Utils.create_cloudwatch_events(url=event_url,
+                                                method=event_method,
+                                                http_error_code=event_status_code, total=total_events)
 
         is_empty_argument_log_stream_name = len(log_stream_name) == 0
 
@@ -49,17 +48,17 @@ def main(profile=None, log_group_name=None, log_stream_name=None, event_url=None
                                                       events=events,
                                                       sequence_token=sequence_token)
 
-        if 'rejectedLogEventsInfo' in response:
+        if Utils.REJECTED_LOG_EVENTS in response:
 
             output = "Unable to write logs: payload contains events that could not be created in stream logs "
             errors = [errors for errors in response['rejectedLogEventsInfo']]
 
             for error in errors:
 
-                if 'tooOld' in error:
+                if Utils.TOO_OLD_REJECTED_REASON in error:
                     output += '(Too old events found in payload)'
 
-                if 'tooNew' in error:
+                if Utils.TOO_OLD_REJECTED_REASON in error:
                     output += '(Events in future found in payload)'
 
             raise Exception(output)
