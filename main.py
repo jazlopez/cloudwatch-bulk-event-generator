@@ -1,85 +1,7 @@
-#
-#
-#
-import json
-import time
 import click
-import datetime
 from src.Logs import CloudwatchLogs
-
-
-def get_stream_name() -> str:
-
-    """
-    :return:
-    """
-    return str(int(time.time())) + "_test_stream"
-
-
-def create_cloudwatch_events(url: str = None,  method='POST', http_error_code: int = 200, total: int = 10) -> list:
-
-    """
-    :param url:
-    :param method:
-    :param http_error_code:
-    :param total:
-    :return:
-    """
-    events = list()
-    event = {'timestamp': None, 'message': None}
-    message = f"{method} {url} HTTP/1.1 {http_error_code} - -"
-    from_now = int(datetime.datetime.now().timestamp() * 1000)
-    entry = {'log': message}
-    for i in range(total):
-        event['timestamp'] = from_now
-        event["message"] = json.dumps(entry)
-        from_now += 1
-        events.append(event)
-
-    return events
-
-
-def validate_total_events(ctx, option, value):
-    """
-    :param ctx:
-    :param option:
-    :param value:
-    :return:
-    """
-
-    error = ""
-    if value <= 0:
-        error = "should be greater than 0"
-    if value >= 10000:
-        error = "should be less than 10000"
-
-    if len(error):
-        raise click.BadParameter(error)
-
-    click.secho(f"[INFO] valid {option.name} argument: {value}")
-
-    return value
-
-
-def validate_event_method(ctx, option, value):
-
-    """
-    :param ctx:
-    :param option:
-    :param value:
-    :return:
-    """
-
-    error = ""
-    ok_options = ['POST', 'GET', 'DELETE', 'PUT', 'PATCH']
-
-    if value not in ok_options:
-        error = f"{option.name} should be any of {'.'.join(ok_options)}"
-
-    if len(error):
-        raise click.BadParameter(error)
-
-    click.secho(f"[INFO] valid {option.name} argument: {value}")
+from src.Validations import Validations
+from src.Utils import Utils
 
 
 @click.command()
@@ -87,9 +9,9 @@ def validate_event_method(ctx, option, value):
 @click.option('--log-group-name', required=True, type=str)
 @click.option('--log-stream-name', required=False, type=str, default='')
 @click.option('--event-url', type=str, required=False, default='/de-eec-subscription/oauth2/token')
-@click.option('--event-method', type=str, required=False, default='POST', callback=validate_event_method)
+@click.option('--event-method', type=str, required=False, default='POST', callback=Validations.validate_event_method)
 @click.option('--event-status-code', type=int, required=False, default=500)
-@click.option('--total-events', type=int, required=False, callback=validate_total_events, default=10)
+@click.option('--total-events', type=int, required=False, callback=Validations.validate_total_events, default=10)
 def main(profile=None, log_group_name=None, log_stream_name=None, event_url=None, event_method=None,
          event_status_code=None, total_events=None):
 
@@ -105,13 +27,13 @@ def main(profile=None, log_group_name=None, log_stream_name=None, event_url=None
 
         logs = CloudwatchLogs(profile_name=profile)
 
-        events = create_cloudwatch_events(url=event_url, method=event_method, http_error_code=event_status_code, total=total_events)
+        events = Utils.create_cloudwatch_events(url=event_url, method=event_method, http_error_code=event_status_code, total=total_events)
 
         is_empty_argument_log_stream_name = len(log_stream_name) == 0
 
         if is_empty_argument_log_stream_name:
 
-            log_stream_name = get_stream_name()
+            log_stream_name = Utils.get_stream_name()
 
             logs.create_log_stream(log_group_name=log_group_name, log_stream_name=log_stream_name)
 
