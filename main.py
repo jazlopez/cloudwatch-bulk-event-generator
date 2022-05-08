@@ -8,7 +8,7 @@ from src.Utils import Utils
 @click.option('--profile', required=False, default='default', type=str)
 @click.option('--log-group-name', required=True, type=str)
 @click.option('--log-stream-name', required=False, type=str, default='')
-@click.option('--event-url', type=str, required=False, default='/de-eec-subscription/oauth2/token')
+@click.option('--event-url', type=str, required=False, default='/')
 @click.option('--event-method', type=str, required=False, default='POST', callback=Validations.validate_event_method)
 @click.option('--event-status-code', type=int, required=False, default=500)
 @click.option('--total-events', type=int, required=False, callback=Validations.validate_total_events, default=10)
